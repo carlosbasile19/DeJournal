@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useMediaQuery} from "usehooks-ts";
-import { ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
+import { BookText, ChevronsLeft, MenuIcon, Plus, PlusCircle, Search, Settings, Trash } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
 import { UserItem } from "./user-item";
@@ -159,6 +159,12 @@ const Navigation = () => {
               label="Settings"
               icon={Settings}
               onClick={settings.onOpen}
+            />
+
+            <Item
+              label="Your Journal"
+              icon={BookText}
+              onClick={() => router.push("/journal?myArticles=true")}
             />
             
             <Item

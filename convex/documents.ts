@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { extractPartialContent } from "../lib/utils";
 
 export const archive = mutation({
   args: { id: v.id("documents") },
@@ -270,6 +271,19 @@ export const getById = query({
   }
 });
 
+export const getPublished = query({
+  handler: async (ctx) => {
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) =>
+        q.eq(q.field("isPublished"), true)
+      )
+      .collect();
+
+    return documents;
+  }
+});
+
 export const update = mutation({
   args: {
     id: v.id("documents"),
@@ -277,7 +291,9 @@ export const update = mutation({
     content: v.optional(v.string()),
     coverImage: v.optional(v.string()),
     icon: v.optional(v.string()),
-    isPublished: v.optional(v.boolean())
+    isPublished: v.optional(v.boolean()),
+    publishedAt: v.optional(v.string()),
+    publishedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -307,6 +323,84 @@ export const update = mutation({
     return document;
   },
 });
+
+export const publishToBlockchain = mutation({
+
+  args: { id: v.id("documents") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const userId = identity.subject;
+
+    const existingDocument = await ctx.db.get(args.id);
+
+    if (!existingDocument) {
+      throw new Error("Not found");
+    }
+
+    if (existingDocument.userId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    // Publish the document to the blockchain
+
+    return existingDocument;
+
+  }
+});
+
+export const getPublishedDocuments = query({
+  
+  handler: async (ctx) => {
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .collect();
+
+    const publishedDocuments = documents.map((document) => ({
+      id: document._id,
+      title: document.title,
+      partialContent: extractPartialContent(document.content?.toString() || ""),
+      isPublished: document.isPublished,
+      publishedAt: document.publishedAt,
+    }));
+
+    return publishedDocuments;
+  },
+});
+
+export const getMyDocuments = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) => q.eq(q.field("isPublished"), true))
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+
+    const publishedDocuments = documents.map((document) => ({
+      id: document._id,
+      title: document.title,
+      partialContent: extractPartialContent(document.content?.toString() || ""),
+      isPublished: document.isPublished,
+      publishedAt: document.publishedAt,
+    }));
+
+    return publishedDocuments;
+  },
+});
+
 
 export const removeIcon = mutation({
   args: { id: v.id("documents") },
@@ -367,6 +461,7 @@ export const removeCoverImage = mutation({
 });
 
 export const get = query({
+
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
 

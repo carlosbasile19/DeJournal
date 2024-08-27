@@ -26,13 +26,18 @@ export const Navbar = () => {
         {isLoading && (
           <Spinner />
         )}
-        {!isLoading && (
+
+        {isAuthenticated && !isLoading && (
           <>
-              <Button onClick={() => window.location.href = "/journal"} size="sm">
-                Journal
-              </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/journal?myArticles=true">
+                My Articles
+              </Link>
+            </Button>
+            
           </>
         )}
+        
         {!isAuthenticated && !isLoading && (
           <>
             <SignInButton mode="modal">

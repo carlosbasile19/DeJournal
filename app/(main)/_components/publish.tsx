@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { Check, Copy, Globe } from "lucide-react";
@@ -14,6 +14,8 @@ import {
 import { useOrigin } from "@/hooks/use-origin";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PublishProps {
   initialData: Doc<"documents">
@@ -28,6 +30,13 @@ export const Publish = ({
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [priceInETH, setPriceInETH] = useState("");
+  const [isListed, setIsListed] = useState(false);
+
+  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setPriceInETH(e.target.value);
+  };
+
   const url = `${origin}/preview/${initialData._id}`;
 
   const onPublish = () => {
@@ -36,8 +45,12 @@ export const Publish = ({
     const promise = update({
       id: initialData._id,
       isPublished: true,
+      publishedAt: new Date().toISOString(),
     })
       .finally(() => setIsSubmitting(false));
+
+      console.log("isListed:", isListed); 
+      console.log("priceInETH:", priceInETH);
 
     toast.promise(promise, {
       loading: "Publishing...",
@@ -94,7 +107,7 @@ export const Publish = ({
             <div className="flex items-center gap-x-2">
               <Globe className="text-sky-500 animate-pulse h-4 w-4" />
               <p className="text-xs font-medium text-sky-500">
-                This note is live on web.
+                This note is live on web3.
               </p>
             </div>
             <div className="flex items-center">
@@ -133,8 +146,25 @@ export const Publish = ({
               Publish this note
             </p>
             <span className="text-xs text-muted-foreground mb-4">
-              Share your work with others.
+              Mint your doc to the blockchain.
             </span>
+            <div className="flex flex-row items-center space-x-4 mb-3">
+                <Input className="text-xs" placeholder="Price in ETH" onChange={handleInputChange} />
+          
+                <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={"terms"}
+                      onClick={() => {setIsListed(!isListed)}}
+                    />
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    List?
+                  </label>
+                </div>
+            </div>
+
             <Button
               disabled={isSubmitting}
               onClick={onPublish}

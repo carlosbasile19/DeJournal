@@ -14,10 +14,10 @@ export const Heading = () => {
   return (
     <div className="max-w-3xl space-y-4">
       <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
-        Your Ideas, Articles, & Papers.Immortalized. Welcome to <span className="underline">deJournal</span>
+        Your Ideas, Documents, & Papers. Unified. Welcome to <span className="underline">deJournal</span>
       </h1>
       <h3 className="text-base sm:text-xl md:text-2xl font-medium">
-        deJournal is where your docs <br />
+        deJournal is where your documents <br />
         can be stored in blockchain, forever.
       </h3>
       {isLoading && (
