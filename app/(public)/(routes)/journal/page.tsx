@@ -1,8 +1,7 @@
 "use client";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useMemo } from "react";
-
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,7 +29,7 @@ interface PublishedDocument{
   isPublished: boolean;
 }
 
-const  journalPage = ({ searchParams }: BlogPageProps) => {
+const JournalPage = ({ searchParams }: BlogPageProps) => {
   /* trunk-ignore(eslint/react-hooks/rules-of-hooks) */
   const { isAuthenticated, isLoading } = useConvexAuth();
  let documents;
@@ -117,4 +116,4 @@ const  journalPage = ({ searchParams }: BlogPageProps) => {
   );
 };
 
-export default journalPage;
+export default JournalPage;
