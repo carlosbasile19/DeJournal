@@ -29,10 +29,12 @@ interface PublishedDocument{
   isPublished: boolean;
 }
 
-const JournalPage = ({ searchParams }: BlogPageProps) => {
+export default function JournalPage({ searchParams }: BlogPageProps) {
   /* trunk-ignore(eslint/react-hooks/rules-of-hooks) */
   const { isAuthenticated, isLoading } = useConvexAuth();
- let documents;
+  let myArticles = useQuery(api.documents.getMyDocuments);;
+  let allArticles = useQuery(api.documents.getPublishedDocuments);
+  let documents;
   
   if (typeof searchParams?.page === "string" && isNaN(Number(searchParams.page))) {
     return <div>Invalid page number</div>;
@@ -43,9 +45,9 @@ const JournalPage = ({ searchParams }: BlogPageProps) => {
   }
 
   if (!isAuthenticated || searchParams?.myArticles !== "true") {
-    documents = useQuery(api.documents.getPublishedDocuments);
+    documents = myArticles
   }else
-    documents = useQuery(api.documents.getMyDocuments);
+    documents = allArticles
 
  
   const currentPage = Number(searchParams?.page) || 1;
@@ -116,4 +118,4 @@ const JournalPage = ({ searchParams }: BlogPageProps) => {
   );
 };
 
-export default JournalPage;
+
